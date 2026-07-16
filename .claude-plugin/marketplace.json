@@ -1,0 +1,12 @@
+{
+  "name": "agent-skdd",
+  "description": "SkDD (Skill Driven Development) — grow project-specific judgment and knowledge as Skills",
+  "owner": { "name": "rabitarochan" },
+  "plugins": [
+    {
+      "name": "skdd",
+      "source": "./",
+      "description": "SkDD plugin — provides /skdd:setup and /skdd:update, and deploys the skdd-harvest engine into projects"
+    }
+  ]
+}
