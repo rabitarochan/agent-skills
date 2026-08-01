@@ -30,6 +30,24 @@ Editing a harvested skill at decision level requires appending a harvest.md
 entry in the same transaction (the *atomic update* protocol) — see
 `templates/skdd-harvest/references/harvest-protocol.md`.
 
+### Two-layer authoring: invariants vs platform conventions
+
+The harvest doctrine separates what SkDD owns from what the platform owns.
+**SkDD invariants** — the 5 candidacy criteria, the harvest threshold with its
+per-level bars and length caps, the SKILL.md + harvest.md pair with atomic
+updates, naming/routing, the oscillation guard — are hardcoded in the engine
+and always win. **Platform authoring conventions** — frontmatter field set,
+description style, body skeleton, progressive-disclosure norms — are resolved
+at harvest time instead of being frozen into the plugin: a skill-authoring
+skill present in the session (e.g. Anthropic's `skill-creator`) takes
+precedence, then the model's own current knowledge of Skills best practices,
+then the dated baseline shipped in the engine (as of 2026-08). No
+documentation fetching is involved — the chain works offline. When updating an
+existing skill, newer conventions apply only to the parts being touched;
+wholesale restyling is treated as churn. The point: harvested skills track the
+platform's current best practices as models and Claude Code evolve, without a
+plugin upgrade.
+
 ## Install
 
 ```
@@ -90,7 +108,7 @@ AGENTS.md markers.
 Per-project parameters persist in the config line inside the markers:
 
 ```
-<!-- skdd:config prefix=pj- hooks=true threshold=medium version=0.2.0 -->
+<!-- skdd:config prefix=pj- hooks=true threshold=medium version=0.3.0 -->
 ```
 
 A project installed before `threshold` existed has no `threshold=` key;
@@ -142,6 +160,9 @@ comment, and the `skdd-stop.sh` header comment.
 - Changing the prefix does not rename existing skills.
 - The threshold changes what gets harvested from now on; it does not prune or
   re-evaluate skills already harvested at a lower level.
+- Newer platform authoring conventions likewise apply only forward — and, on
+  updates, only to the sections being touched; existing skills are never
+  restyled wholesale.
 
 ## Repository layout
 

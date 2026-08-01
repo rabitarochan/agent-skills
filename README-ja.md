@@ -31,6 +31,23 @@ decision-level の変更で SKILL.md を編集する場合、同一トランザ�
 harvest.md にエントリを追記します(**原子的更新**プロトコル)。詳細は
 `templates/skdd-harvest/references/harvest-protocol.md` を参照してください。
 
+### 2 層の執筆規約: SkDD 不変条件とプラットフォーム作法
+
+収穫のドクトリンは「SkDD が所有するもの」と「プラットフォームが所有するもの」を
+分離しています。**SkDD 不変条件** — 5 基準、収穫閾値とレベルごとのバー・行数上限、
+SKILL.md + harvest.md ペアと原子的更新、命名・ルーティング、oscillation guard —
+はエンジンにハードコードされ、常に優先されます。**プラットフォーム作法** —
+frontmatter のフィールド構成、description の書き方、本文の骨子、
+progressive disclosure の流儀 — はプラグインに焼き込まず、収穫時に解決します:
+セッションに skill 作成系スキル(例: Anthropic の `skill-creator`)があれば
+それが優先、なければモデル自身が持つ最新の Skills ベストプラクティス、
+どちらも無ければエンジン同梱の日付付きベースライン(2026-08 時点)です。
+ドキュメントの取得は行わないため、このチェーンはオフラインでも動作します。
+既存スキルの更新では、新しい作法は「編集した箇所」にのみ適用します —
+スタイル合わせだけの全面リライトは churn として扱います。狙いは、モデルや
+Claude Code が進化しても、プラグインを更新することなく、収穫されるスキルが
+その時々のベストプラクティスに追従することです。
+
 ## インストール
 
 ```
@@ -91,7 +108,7 @@ claude plugin install skdd@agent-skdd
 プロジェクトごとのパラメータはマーカー内の config 行に永続化されます:
 
 ```
-<!-- skdd:config prefix=pj- hooks=true threshold=medium version=0.2.0 -->
+<!-- skdd:config prefix=pj- hooks=true threshold=medium version=0.3.0 -->
 ```
 
 `threshold` 導入前に setup したプロジェクトにはこのキーがありません。
@@ -142,6 +159,9 @@ claude plugin install skdd@agent-skdd
 - 接頭辞を変更しても既存スキルはリネームされません。
 - 閾値は「これから何を収穫するか」を変えるだけで、既に低い閾値で収穫済みの
   スキルを整理したり再評価したりはしません。
+- 新しいプラットフォーム作法も同様に「これから」にのみ適用されます — 更新時も
+  編集した箇所だけが対象で、既存スキルが全面的にリスタイルされることは
+  ありません。
 
 ## リポジトリ構成
 

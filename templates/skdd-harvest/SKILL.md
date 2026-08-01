@@ -18,7 +18,10 @@ description: >
 
 Quickly harvest knowledge born from daily LLM collaboration into reusable Skills.
 If `skill-creator` is a "workshop for designing and evaluating polished skills",
-`skdd-harvest` is "picking ripe knowledge from today's fieldwork".
+`skdd-harvest` is "picking ripe knowledge from today's fieldwork". When
+`skill-creator` (or a successor) is present in a session, `skdd-harvest` still
+owns the harvest decision — what to harvest, when, and under which threshold —
+and defers only format mechanics to it (see "Authoring Conventions").
 
 The unit of value is **How with its Why attached**. A bare How (procedure without
 the judgment behind it) is brittle: when the context shifts, no one can tell
@@ -111,6 +114,38 @@ existing skill rather than adding one, and how hard the writing must be distille
 - Distillation: SKILL.md under 120 lines; Why and decision rules only.
   Reproducible procedures belong in `references/`; the judgment stays in SKILL.md.
 
+## Authoring Conventions — two layers
+
+A harvested skill mixes two kinds of rules. Keep them separate:
+
+**Layer 1 — SkDD invariants.** Defined by this file and its references; no
+external guidance overrides them: the 5 candidacy criteria; the harvest
+threshold with its per-level bars and length caps; the SKILL.md + harvest.md
+pair and the atomic-update transaction; naming
+(`{{SKDD_PREFIX}}<domain>-<action>`) and project/global routing; the
+oscillation guard; never renaming a skill.
+
+**Layer 2 — platform authoring conventions.** The SKILL.md frontmatter field
+set, description/trigger phrasing style, body section skeleton,
+progressive-disclosure norms (when and how to split into `references/`), and
+skill directory location phrasing. These evolve with the platform faster than
+this plugin ships, so resolve them fresh every time you generate or update a
+skill:
+
+1. If a dedicated skill-authoring skill is available in this session (e.g.
+   Anthropic's `skill-creator`), follow its current guidance for these
+   format/structure mechanics.
+2. Otherwise, apply your own current knowledge of the platform's Skills
+   authoring best practices.
+3. If neither yields guidance you are confident is newer, use the dated
+   baseline in Step 3 as written.
+
+**Precedence: SkDD invariants > newer platform guidance (1-2) > dated
+baseline.** When uncertain whether guidance is genuinely newer than the
+baseline, prefer the baseline — a misremembered "new convention" is worse than
+a dated real one. Do not fetch documentation to resolve this; the chain must
+work offline in every harvest.
+
 ## Workflow
 
 ### Step 1: Knowledge Extraction
@@ -184,7 +219,13 @@ Every harvested skill is a **pair**:
 - `SKILL.md` — the current snapshot of Why + How
 - `harvest.md` — the append-only decision record (ADR) of how the skill evolved
 
-#### Directory structure
+Before writing, resolve the Layer-2 format mechanics via the chain in
+"Authoring Conventions". The subsections below tagged **[baseline — as of
+2026-08]** are the fallback snapshot: apply them as written when the chain
+yields nothing newer; let newer platform guidance supersede them. Untagged
+subsections are SkDD invariants.
+
+#### Directory structure [baseline — as of 2026-08]
 
 ```
 skill-name/
@@ -194,7 +235,15 @@ skill-name/
     └── <topic>.md
 ```
 
-#### SKILL.md structure template
+The SKILL.md + harvest.md pairing is a SkDD invariant; the `references/` split
+rule (including the 300-line trigger) is Layer 2 — follow the platform's
+current progressive-disclosure norm if newer.
+
+#### SKILL.md structure template [baseline — as of 2026-08]
+
+Frontmatter field set, description style, and body skeleton are Layer 2 — the
+chain may supersede any of them. That the skill exists as this pair, under the
+active length cap, with its Why inline, is Layer 1.
 
 ```markdown
 ---
@@ -242,10 +291,18 @@ skill, `change` = the initial Why + How in one or two lines, `supersedes` = `—
 
 #### Writing principles
 
-- **Imperative form**: "Run...", "Verify...", "Do not..."
-- **Attach why**: "because...", "otherwise X happens", "this prevents..."
+Always (SkDD invariants):
+
+- **Attach why**: "because...", "otherwise X happens", "this prevents..." —
+  a How without its Why is not a harvest
 - **Respect the length cap of the active threshold level** (see "Harvest
-  Threshold"). If longer, split into `references/` and add pointers from SKILL.md
+  Threshold"). If longer, move supplementary content out of SKILL.md following
+  the current progressive-disclosure convention (baseline: `references/` with
+  pointers from SKILL.md)
+
+Baseline style [as of 2026-08 — the chain may supersede]:
+
+- **Imperative form**: "Run...", "Verify...", "Do not..."
 - **Define domain terms** on first use with a brief parenthetical
 - **Description is comprehensive**: include multiple phrasings a user might say to maximize trigger accuracy
 
@@ -300,3 +357,8 @@ When new insights fall within an existing skill's scope:
 4. **Check the oscillation guard**: before re-adopting an approach, scan
    harvest.md for an entry that already rejected it (see harvest-protocol.md)
 5. **Preserve the original skill name** and directory name — do not rename
+6. **Modernize only what you touch**: apply the current Layer-2 conventions
+   (see "Authoring Conventions") to the sections being edited, but never
+   rewrite or restyle a whole skill just to match newer format conventions —
+   that is churn, not growth. A style-only modernization of a touched section
+   is a trivial edit (no harvest.md entry).

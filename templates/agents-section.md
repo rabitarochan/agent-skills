@@ -34,6 +34,23 @@ This project's harvest threshold is **`{{SKDD_THRESHOLD}}`**, which sets these b
 - Full procedure, and the consolidation/distillation rules for this threshold
   level: `.claude/skills/skdd-harvest/SKILL.md`
 
+### Skill authoring conventions (two layers)
+
+- The SkDD rules in this section — criteria, threshold bars, the pair model
+  and atomic updates, naming, routing — are invariants and always apply.
+- Format mechanics of a generated SKILL.md (frontmatter field set, description
+  style, body skeleton, when to split content into reference files) follow the
+  executing platform's current conventions, resolved at harvest time: a
+  dedicated skill-authoring skill available to the executing agent, if any;
+  otherwise the agent's own current knowledge of its platform's skill-format
+  best practices; otherwise the dated baseline in
+  `.claude/skills/skdd-harvest/SKILL.md` (Step 3).
+- Precedence: SkDD invariants > current platform conventions > dated baseline.
+  When unsure whether guidance is newer, prefer the baseline. Do not fetch
+  documentation to decide.
+- When updating an existing skill, apply current conventions only to the parts
+  being touched — never restyle a whole skill to match newer conventions.
+
 ### Skill update protocol (atomic updates)
 
 - Harvested skills are managed as a pair: `SKILL.md` (current Why+How snapshot)
