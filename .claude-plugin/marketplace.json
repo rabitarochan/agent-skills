@@ -6,7 +6,7 @@
     {
       "name": "skdd",
       "source": "./",
-      "description": "SkDD plugin — provides /skdd:setup and /skdd:update, and deploys the skdd-harvest engine into projects"
+      "description": "SkDD plugin — provides /skdd:setup, /skdd:config and /skdd:update, and deploys the skdd-harvest engine into projects"
     }
   ]
 }

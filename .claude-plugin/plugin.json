@@ -1,7 +1,7 @@
 {
   "name": "skdd",
-  "version": "0.1.0",
-  "description": "Skill Driven Development — crystallize reusable work patterns into Skills and grow them with their Why attached. Run /skdd:setup to install into a project, /skdd:update to upgrade.",
+  "version": "0.2.0",
+  "description": "Skill Driven Development — crystallize reusable work patterns into Skills and grow them with their Why attached. Run /skdd:setup to install into a project, /skdd:config to tune the harvest threshold, /skdd:update to upgrade.",
   "author": { "name": "rabitarochan" },
   "license": "MIT",
   "keywords": ["skdd", "skills", "adr", "knowledge-management"]

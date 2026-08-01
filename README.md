@@ -12,8 +12,8 @@ plugin: **`skdd`**.
 
 **The plugin is an engine + installer; the project holds the materialized assets.**
 
-The plugin itself exposes only two explicitly-invoked skills (`/skdd:setup`,
-`/skdd:update`). The harvest engine (`skdd-harvest`) is a template payload that
+The plugin itself exposes only explicitly-invoked skills (`/skdd:setup`,
+`/skdd:config`, `/skdd:update`). The harvest engine (`skdd-harvest`) is a template payload that
 setup copies into each project. Because the deployed assets are plain project
 files (`.claude/skills/`, `AGENTS.md`), any agent platform that reads AGENTS.md
 — OpenAI Codex and other Agent Skills-compatible tools — can participate in
@@ -53,6 +53,7 @@ Run inside the target project. It asks for:
 - a **skill prefix** (default `pj-`; must match `^[a-z][a-z0-9]*-$`)
 - whether to install the **Stop hook** (recommended; reminds the agent to run
   the harvest evaluation at every response completion)
+- a **harvest threshold** (default `medium`; see below)
 
 It then writes:
 
@@ -67,6 +68,18 @@ It then writes:
 
 Commit everything except `backlog.md` (already gitignored).
 
+### `/skdd:config` — change per-project settings
+
+Changes the **harvest threshold**, the **skill prefix**, or whether the **Stop
+hook** is installed, then re-renders the managed artifacts so every copy of the
+rules agrees. It never changes the deployed version — that is `/skdd:update`'s
+job — and never touches `backlog.md` or harvested skills.
+
+```
+/skdd:config                 # interactive
+/skdd:config threshold=high  # one-shot
+```
+
 ### `/skdd:update` — upgrade deployed assets
 
 After upgrading the plugin (`claude plugin update skdd`), run `/skdd:update` in
@@ -77,12 +90,12 @@ AGENTS.md markers.
 Per-project parameters persist in the config line inside the markers:
 
 ```
-<!-- skdd:config prefix=pj- hooks=true version=0.1.0 -->
+<!-- skdd:config prefix=pj- hooks=true threshold=medium version=0.2.0 -->
 ```
 
-Changing the prefix: edit `prefix=` in this line and run `/skdd:update` with a
-version bump (or force). Existing harvested skills are **not** renamed —
-migrate them manually.
+A project installed before `threshold` existed has no `threshold=` key;
+`/skdd:update` fills it in as `medium`, which reproduces the old behaviour
+exactly.
 
 ### Harvesting
 
@@ -90,9 +103,24 @@ The deployed engine (and the AGENTS.md section, for non-Claude agents) drives
 the loop: at task completion the session is scored against 5 criteria —
 recurrence, proceduralness, non-obviousness, correction-derived, generality.
 
-- 3/5+ → propose a skill (or an update to an existing one)
-- 1–2/5 → silently record a Proto-Skill in `backlog.md`
-- Proto-Skill seen in 2+ sessions → propose promotion
+How selective that loop is comes from one dial, the **harvest threshold**.
+Raising it tightens three things at once: the score bar, the bias toward
+updating an existing skill instead of adding one, and how hard the writing must
+be distilled. The right setting is not universal — a fresh project needs eager
+capture, a mature one needs the opposite, because every new skill dilutes the
+set and makes the right one harder to find.
+
+| Level | Propose | Proto-Skill | Promote after | Consolidation | Length cap |
+|---|---|---|---|---|---|
+| `low` | 2/5+ | 1/5 | 2 sessions | new skill unless one clearly covers it | 500 lines |
+| `medium` | 3/5+ | 1-2/5 | 2 sessions | update when scopes overlap | 500 lines |
+| `high` | 4/5+ | 2-3/5 | 3 sessions | read every existing description first; any overlap → update | 200 lines |
+| `max` | 5/5 | 3-4/5 | 4 sessions | new skill needs an explicit gap statement | 120 lines |
+
+`medium` is the default. Set it at `/skdd:setup`, change it with
+`/skdd:config threshold=<level>`. The per-level profile is carried in the
+deployed `.claude/skills/skdd-harvest/SKILL.md`, section "Harvest Threshold" —
+that section is the single source of truth for these numbers.
 
 ## Versioning
 
@@ -110,13 +138,15 @@ comment, and the `skdd-stop.sh` header comment.
 ## Known v1 limitations
 
 - Local edits to the deployed `skdd-harvest` files are overwritten by
-  `/skdd:update` — engine improvements belong in this repository.
+  `/skdd:update` and `/skdd:config` — engine improvements belong in this repository.
 - Changing the prefix does not rename existing skills.
+- The threshold changes what gets harvested from now on; it does not prune or
+  re-evaluate skills already harvested at a lower level.
 
 ## Repository layout
 
 - `.claude-plugin/` — plugin + marketplace manifests
-- `skills/` — the two installer skills (`setup`, `update`)
+- `skills/` — the installer skills (`setup`, `config`, `update`)
 - `templates/` — payload deployed into projects (engine skill, backlog seed,
   hook script, AGENTS.md section)
 - `SkDD-plugin-handoff.md` — design document (in Japanese); §2 is the design

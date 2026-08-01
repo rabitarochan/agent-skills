@@ -1,5 +1,5 @@
 <!-- skdd:begin -->
-<!-- skdd:config prefix={{SKDD_PREFIX}} hooks={{SKDD_HOOKS}} version={{SKDD_VERSION}} -->
+<!-- skdd:config prefix={{SKDD_PREFIX}} hooks={{SKDD_HOOKS}} threshold={{SKDD_THRESHOLD}} version={{SKDD_VERSION}} -->
 <!-- This section is managed by the skdd plugin. Do not edit inside the markers; run /skdd:update to regenerate. -->
 
 ## SkDD (Skill Driven Development)
@@ -22,12 +22,17 @@ repository must follow this protocol.
 At natural task-completion points, evaluate the session against 5 criteria:
 (1) recurrence (2) proceduralness (3) non-obviousness (4) correction-derived (5) generality
 
-- **3/5 or more** → propose skillification (or an update to an existing skill)
-- **1–2/5** → silently record a Proto-Skill in `.claude/skills/skdd-harvest/backlog.md`
-- **0/5** → do nothing
-- A Proto-Skill that reappears in **2+ separate sessions** → propose promotion
-- Insights within an existing skill's scope → propose updating that skill, not a new one
-- Full procedure: `.claude/skills/skdd-harvest/SKILL.md`
+This project's harvest threshold is **`{{SKDD_THRESHOLD}}`**, which sets these bars:
+
+- **{{SKDD_SCORE_MIN}}/5 or more** → propose skillification (or an update to an existing skill)
+- **{{SKDD_PROTO_BAND}}/5** → silently record a Proto-Skill in `.claude/skills/skdd-harvest/backlog.md`
+- **below that** → do nothing
+- A Proto-Skill that reappears in **{{SKDD_PROMOTE_SESSIONS}}+ separate sessions** → propose promotion
+- Insights within an existing skill's scope → propose updating that skill, not a
+  new one. Read the existing skills' descriptions before proposing a new skill —
+  a name-collision check does not detect overlapping scope.
+- Full procedure, and the consolidation/distillation rules for this threshold
+  level: `.claude/skills/skdd-harvest/SKILL.md`
 
 ### Skill update protocol (atomic updates)
 

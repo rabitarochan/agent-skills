@@ -1,8 +1,14 @@
 # SkDD Proto-Skill Backlog
 
-Silently records knowledge that meets 1–2 of the 5 harvest criteria but is below
-the skillification threshold (3/5). When an item reappears in 2 or more separate
-sessions, propose promoting it to a full skill.
+Silently records knowledge that scores below this project's skillification
+threshold but may recur. When an item reappears often enough, propose promoting
+it to a full skill.
+
+The active threshold level, the Proto-Skill band, and the number of sessions
+required for promotion are defined in `.claude/skills/skdd-harvest/SKILL.md`
+(section "Harvest Threshold"). They are deliberately not repeated here: this file
+is per-developer state that is written once and never re-rendered, so any numbers
+copied into it would go stale the moment the threshold changes.
 
 This file is per-developer local state — it is gitignored and must not be committed.
 

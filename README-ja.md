@@ -11,8 +11,8 @@
 
 **プラグイン = エンジン + インストーラー / プロジェクト = 実体(マテリアライズされた資産)**
 
-プラグインが公開するのは明示呼び出し専用の 2 スキル(`/skdd:setup`、
-`/skdd:update`)のみです。収穫エンジン(`skdd-harvest`)はテンプレートペイロード
+プラグインが公開するのは明示呼び出し専用のスキル(`/skdd:setup`、
+`/skdd:config`、`/skdd:update`)のみです。収穫エンジン(`skdd-harvest`)はテンプレートペイロード
 として、setup が各プロジェクトへコピーします。配置される資産は素のプロジェクト
 ファイル(`.claude/skills/`、`AGENTS.md`)なので、AGENTS.md を読む OpenAI Codex
 などの Agent Skills 対応プラットフォームも、何もインストールせずに SkDD に
@@ -49,12 +49,13 @@ claude plugin install skdd@agent-skdd
 
 ### `/skdd:setup` — プロジェクトへの導入
 
-対象プロジェクト内で実行します。次の 2 点を質問されます:
+対象プロジェクト内で実行します。次の 3 点を質問されます:
 
 - **スキル接頭辞**(デフォルト `pj-`。`^[a-z][a-z0-9]*-$` に一致すること。
   既存プロジェクトの `mss-` などをそのまま使えます)
 - **Stop hook を導入するか**(推奨。応答完了のたびに収穫評価をエージェントに
   促します)
+- **収穫閾値**(デフォルト `medium`。後述)
 
 配置されるファイル:
 
@@ -69,6 +70,17 @@ claude plugin install skdd@agent-skdd
 
 `backlog.md` 以外はコミットしてください(backlog.md は gitignore 済み)。
 
+### `/skdd:config` — プロジェクト設定の変更
+
+**収穫閾値**・**スキル接頭辞**・**Stop hook の有無**を変更し、管理対象の資産を
+再レンダリングして全コピーの記述を揃えます。デプロイ済みバージョンは変更しません
+(それは `/skdd:update` の役割です)。`backlog.md` と収穫済みスキルには触れません。
+
+```
+/skdd:config                 # 対話的に変更
+/skdd:config threshold=high  # ワンショット
+```
+
 ### `/skdd:update` — 配置済み資産の更新
 
 プラグイン本体を更新(`claude plugin update skdd`)した後、各プロジェクトで
@@ -79,12 +91,11 @@ claude plugin install skdd@agent-skdd
 プロジェクトごとのパラメータはマーカー内の config 行に永続化されます:
 
 ```
-<!-- skdd:config prefix=pj- hooks=true version=0.1.0 -->
+<!-- skdd:config prefix=pj- hooks=true threshold=medium version=0.2.0 -->
 ```
 
-接頭辞の変更: この行の `prefix=` を手で書き換えて `/skdd:update` を実行します
-(バージョンが同じ場合は強制再レンダリングを指示)。既存スキルのリネームは
-行われないため、手動で移行してください。
+`threshold` 導入前に setup したプロジェクトにはこのキーがありません。
+`/skdd:update` が `medium`(= 従来の挙動と等価)で補完します。
 
 ### 収穫(harvest)の流れ
 
@@ -93,9 +104,23 @@ claude plugin install skdd@agent-skdd
 
 (1) 再発性 (2) 手順性 (3) 非自明性 (4) 修正由来 (5) 汎用性
 
-- **3/5 以上** → スキル化(または既存スキルの更新)を提案
-- **1–2/5** → `backlog.md` に Proto-Skill としてサイレント記録
-- Proto-Skill が **2 セッション以上**で再登場 → 昇格を提案
+このループの選択性は **収穫閾値(threshold)** という 1 本のダイヤルで決まります。
+レベルを上げると 3 つが同時に厳しくなります: スコアのバー、新規作成より既存スキル
+更新に寄せる強さ、そして蒸留の規律です。適切な値はプロジェクト共通ではありません —
+スキルが無いうちは積極的に拾うべきですが、成熟したプロジェクトでは逆で、
+スキルが増えるほど全体が薄まり、必要な 1 つを見つけにくくなります。
+
+| レベル | 提案 | Proto-Skill | 昇格 | 統合バイアス | 行数上限 |
+|---|---|---|---|---|---|
+| `low` | 2/5 以上 | 1/5 | 2 セッション | 明らかに既存が覆う場合を除き新規作成 | 500 行 |
+| `medium` | 3/5 以上 | 1-2/5 | 2 セッション | スコープが重なれば更新 | 500 行 |
+| `high` | 4/5 以上 | 2-3/5 | 3 セッション | 先に全既存スキルの description を読み、重なれば更新 | 200 行 |
+| `max` | 5/5 | 3-4/5 | 4 セッション | 既存が受け皿にならない理由の明示が必要 | 120 行 |
+
+デフォルトは `medium` です。`/skdd:setup` で選択し、`/skdd:config threshold=<レベル>`
+で変更します。レベルごとのプロファイル本体は、配置された
+`.claude/skills/skdd-harvest/SKILL.md` の「Harvest Threshold」セクションにあり、
+そこがこれらの数値の唯一の真実源です。
 
 ## バージョニング
 
@@ -112,14 +137,16 @@ claude plugin install skdd@agent-skdd
 
 ## v1 の既知の制約
 
-- 配置済み skdd-harvest への手元編集は `/skdd:update` で上書きされます —
-  エンジンの改善はこのリポジトリ側で行ってください。
+- 配置済み skdd-harvest への手元編集は `/skdd:update` と `/skdd:config` で
+  上書きされます — エンジンの改善はこのリポジトリ側で行ってください。
 - 接頭辞を変更しても既存スキルはリネームされません。
+- 閾値は「これから何を収穫するか」を変えるだけで、既に低い閾値で収穫済みの
+  スキルを整理したり再評価したりはしません。
 
 ## リポジトリ構成
 
 - `.claude-plugin/` — プラグイン + marketplace マニフェスト
-- `skills/` — インストーラー 2 スキル(`setup`、`update`)
+- `skills/` — インストーラースキル(`setup`、`config`、`update`)
 - `templates/` — プロジェクトへ配置されるペイロード(エンジンスキル、backlog
   シード、hook スクリプト、AGENTS.md セクション)
 - `SkDD-plugin-handoff.md` — 設計資料。§2 が設計の憲法(Why を伴った How が資産、

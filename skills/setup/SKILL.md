@@ -37,11 +37,29 @@ Ask the user (one question round):
 2. **Install the Stop hook?** (recommended: yes). Explain: at every response
    completion, the hook reminds the agent to run the SkDD harvest evaluation.
    Dependency: `bash` on PATH in the hook environment (Git Bash on Windows).
+3. **Harvest threshold.** Default: `medium`. One of `low` / `medium` / `high` /
+   `max`. Re-ask on any other value. Present it as one dial that controls how
+   selective harvesting is — offer these one-liners:
 
-## Step 3 — Read the plugin version
+   - `low` — harvest eagerly; for a new or under-documented project
+   - `medium` — the balanced default (propose at 3 of the 5 criteria)
+   - `high` — keep the skill set small and sharp; prefers updating an existing
+     skill over adding one
+   - `max` — only knowledge that changes how future work is judged
 
-Read `${CLAUDE_PLUGIN_ROOT}/.claude-plugin/plugin.json` and take its `version`
-value as `SKDD_VERSION` for the placeholder substitution below.
+## Step 3 — Read the plugin version and derive the threshold values
+
+1. Read `${CLAUDE_PLUGIN_ROOT}/.claude-plugin/plugin.json` and take its `version`
+   value as `SKDD_VERSION` for the placeholder substitution below.
+2. Read the `## Harvest Threshold` section of
+   `${CLAUDE_PLUGIN_ROOT}/templates/skdd-harvest/SKILL.md`. That section is the
+   single source of truth for the level → values mapping; do not derive the
+   numbers from memory. From the block matching the level chosen in Step 2, take:
+
+   - `SKDD_SCORE_MIN` — the proposal bar as a bare integer (e.g. `4`)
+   - `SKDD_PROTO_BAND` — the Proto-Skill band exactly as written, ASCII hyphen
+     included (e.g. `2-3`, or `1` for a single-value band)
+   - `SKDD_PROMOTE_SESSIONS` — the promotion session count as a bare integer
 
 ## Step 4 — Deploy the engine skill
 
@@ -51,15 +69,21 @@ Copy from `${CLAUDE_PLUGIN_ROOT}/templates/skdd-harvest/` into the project at
 | Source | Target | Substitution |
 |---|---|---|
 | `SKILL.md` | `.claude/skills/skdd-harvest/SKILL.md` | yes |
-| `references/harvest-protocol.md` | `.claude/skills/skdd-harvest/references/harvest-protocol.md` | yes |
-| `references/adr-entry-schema.md` | `.claude/skills/skdd-harvest/references/adr-entry-schema.md` | yes |
+| `references/harvest-protocol.md` | `.claude/skills/skdd-harvest/references/harvest-protocol.md` | no (verbatim) |
+| `references/adr-entry-schema.md` | `.claude/skills/skdd-harvest/references/adr-entry-schema.md` | no (verbatim) |
 | `.gitignore` | `.claude/skills/skdd-harvest/.gitignore` | no (verbatim) |
 
 Substitution = replace EVERY occurrence of these tokens while copying:
 
 - `{{SKDD_PREFIX}}` → the prefix from Step 2
 - `{{SKDD_HOOKS}}` → `true` or `false` per Step 2
-- `{{SKDD_VERSION}}` → the version from Step 3
+- `{{SKDD_THRESHOLD}}` → the level from Step 2
+- `{{SKDD_SCORE_MIN}}`, `{{SKDD_PROTO_BAND}}`, `{{SKDD_PROMOTE_SESSIONS}}` → the
+  values derived in Step 3
+
+Note: the `## Harvest Threshold` section describes all four levels and is copied
+as-is. Only the "Active level" line carries a token — do not delete the other
+levels' blocks, and do not rewrite their numbers.
 
 **Verification (mandatory):** after writing, grep the written files for
 `{{SKDD_`. Any hit is an error — fix before continuing.
@@ -73,7 +97,11 @@ If it exists, DO NOT touch it — it is per-developer state.
 ## Step 6 — Stop hook (only if opted in at Step 2)
 
 1. Copy `${CLAUDE_PLUGIN_ROOT}/templates/skdd-stop.sh` to
-   `.claude/hooks/skdd-stop.sh` (create the directory; verbatim copy).
+   `.claude/hooks/skdd-stop.sh` (create the directory). This file **is
+   substituted** — apply the same token replacement as Step 4, and include it in
+   the mandatory `{{SKDD_` grep verification. The reminder text it prints must
+   state this project's actual bars, otherwise the highest-frequency trigger in
+   the system would contradict the configured threshold.
 2. Merge into `.claude/settings.json`:
    - If the file does not exist, create it with exactly:
 
@@ -106,8 +134,7 @@ If it exists, DO NOT touch it — it is per-developer state.
 ## Step 7 — AGENTS.md managed section
 
 1. Render `${CLAUDE_PLUGIN_ROOT}/templates/agents-section.md` with the same
-   substitutions as Step 4 (`{{SKDD_PREFIX}}`, `{{SKDD_HOOKS}}`,
-   `{{SKDD_VERSION}}`).
+   substitutions as Step 4.
 2. If `AGENTS.md` does not exist: create it containing exactly the rendered block.
 3. If it exists: append the rendered block at the end of the file, separated by
    one blank line. Never modify existing content.
@@ -130,6 +157,7 @@ Tell the user:
   else under `.claude/` plus `AGENTS.md`/`CLAUDE.md` should be committed
 - If the hook was installed: it takes effect after the session restarts
   (hooks are snapshotted at startup); it can be reviewed with `/hooks`
+- The chosen harvest threshold, and that `/skdd:config` changes it later
 - Suggest trying a first harvest at the end of the next substantial task
 
 ## Recovery notes

@@ -30,6 +30,7 @@ future agents can adapt instead of blindly following.
 - Project skill prefix: `{{SKDD_PREFIX}}` (naming: `{{SKDD_PREFIX}}<domain>-<action>`)
 - Project skills live under `.claude/skills/`
 - Proto-Skill backlog: `.claude/skills/skdd-harvest/backlog.md` (per-developer local state, gitignored)
+- Harvest threshold: `{{SKDD_THRESHOLD}}` — see "Harvest Threshold" below
 
 ## Invocation
 
@@ -41,12 +42,12 @@ future agents can adapt instead of blindly following.
 ### Autonomous triggers (governed by the SkDD section in AGENTS.md)
 
 - The agent detects a skill candidate at a natural task completion point
-  AND the candidacy criteria threshold (3/5 or more) is met
-- A Proto-Skill has appeared in 2+ separate sessions and qualifies for promotion
+  AND the candidacy criteria threshold ({{SKDD_SCORE_MIN}}/5 or more) is met
+- A Proto-Skill has appeared in {{SKDD_PROMOTE_SESSIONS}}+ separate sessions and qualifies for promotion
 
 ### When NOT to propose
 
-- The candidacy threshold is not met (fewer than 3/5 criteria)
+- The candidacy threshold is not met (fewer than {{SKDD_SCORE_MIN}}/5 criteria)
 - The session consisted only of simple Q&A with no procedural knowledge
 - The knowledge is already covered by an existing skill (propose an update instead)
 
@@ -58,7 +59,57 @@ future agents can adapt instead of blindly following.
 4. **Correction-derived** — it came from a user correction or a trial-and-error fix
 5. **Generality** — it applies beyond the single file/ticket at hand
 
-Score each criterion as met/not met. 3/5+ → propose. 1–2/5 → Proto-Skill. 0/5 → nothing.
+Score each criterion as met/not met. Where the bar sits is set by the harvest
+threshold below: {{SKDD_SCORE_MIN}}/5+ → propose. {{SKDD_PROTO_BAND}}/5 → Proto-Skill.
+Below that → nothing.
+
+## Harvest Threshold
+
+Active level for this project: **{{SKDD_THRESHOLD}}**. Apply that block below and
+ignore the others. The level is chosen at install time and changed with
+`/skdd:config` — it is not a judgment call to make per session.
+
+Why a dial at all: the right harvest rate is not universal. A fresh project with
+no skills needs eager capture; a mature one needs the opposite — every new skill
+dilutes the set and makes the right one harder to find. Raising the level
+tightens three things at once: the score bar, the bias toward updating an
+existing skill rather than adding one, and how hard the writing must be distilled.
+
+### low — harvest eagerly (bootstrapping a new or under-documented project)
+
+- Propose at 2/5+; Proto-Skill at 1/5; nothing at 0/5
+- Promote a Proto-Skill after 2 separate sessions
+- Consolidation: create a new skill unless an existing one clearly already covers it
+- Distillation: SKILL.md under 500 lines
+
+### medium — the balanced default
+
+- Propose at 3/5+; Proto-Skill at 1-2/5; nothing at 0/5
+- Promote a Proto-Skill after 2 separate sessions
+- Consolidation: when the knowledge overlaps an existing skill's scope, propose
+  an update to that skill instead of a new one
+- Distillation: SKILL.md under 500 lines; one skill = one `<domain>-<action>`
+
+### high — keep the skill set small and sharp
+
+- Propose at 4/5+; Proto-Skill at 2-3/5; nothing at 0-1/5
+- Promote a Proto-Skill after 3 separate sessions
+- Consolidation: BEFORE proposing anything new, list `.claude/skills/` and read
+  every existing SKILL.md frontmatter description. If ANY of them overlaps, the
+  answer is an update, not a new skill.
+- Distillation: SKILL.md under 200 lines; one skill = one decision axis.
+  Transcribing the steps you just performed is not harvesting — state the rule
+  that would let a future agent derive those steps.
+
+### max — only knowledge that changes how future work is judged
+
+- Propose at 5/5; Proto-Skill at 3-4/5; nothing at 0-2/5
+- Promote a Proto-Skill after 4 separate sessions
+- Consolidation: never create a new skill while any existing skill could host the
+  knowledge. A new skill requires an explicit statement of the gap no existing
+  skill fills.
+- Distillation: SKILL.md under 120 lines; Why and decision rules only.
+  Reproducible procedures belong in `references/`; the judgment stays in SKILL.md.
 
 ## Workflow
 
@@ -83,6 +134,17 @@ Analyze the current conversation and identify knowledge worth skillifying.
 
 ### Step 2: Routing and Skill Design (agreement with user)
 
+**Scope overlap check (run this before designing anything new):**
+
+List `.claude/skills/` and read each existing SKILL.md's frontmatter description.
+If the knowledge falls inside an existing skill's scope, stop here and go to
+"Updating Existing Skills" — do not design a new skill. How much overlap is
+disqualifying is set by the active threshold level's Consolidation rule.
+
+A name-collision check is not an overlap check: two skills can have entirely
+different names and still cover the same ground, which is the usual way a skill
+set rots.
+
 **Route the knowledge first:**
 
 - **Project-specific** (depends on this repository's conventions, systems, or
@@ -101,6 +163,8 @@ Summary:  <one-line description>
 Scope:    <2-3 bullet points>
 Trigger:  <"when you want to...", "when asked to...">
 Criteria met: <which of the 5 criteria apply>
+Threshold: {{SKDD_THRESHOLD}} (bar: {{SKDD_SCORE_MIN}}/5)
+Overlap:  <which existing skills were considered, and why none can host this>
 ─────────────────────
 Shall I generate this?
 ```
@@ -180,7 +244,8 @@ skill, `change` = the initial Why + How in one or two lines, `supersedes` = `—
 
 - **Imperative form**: "Run...", "Verify...", "Do not..."
 - **Attach why**: "because...", "otherwise X happens", "this prevents..."
-- **Under 500 lines**. If longer, split into `references/` and add pointers from SKILL.md
+- **Respect the length cap of the active threshold level** (see "Harvest
+  Threshold"). If longer, split into `references/` and add pointers from SKILL.md
 - **Define domain terms** on first use with a brief parenthetical
 - **Description is comprehensive**: include multiple phrasings a user might say to maximize trigger accuracy
 
@@ -197,7 +262,8 @@ but may recur.
 
 ### Recording condition
 
-- 1–2 of the 5 candidacy criteria are met, but fewer than 3
+- The score lands in the Proto-Skill band for the active threshold level
+  ({{SKDD_PROTO_BAND}}/5) — below the proposal bar of {{SKDD_SCORE_MIN}}/5
 - The knowledge feels like "might be a one-off, but worth tracking"
 
 ### Recording format — append to `.claude/skills/skdd-harvest/backlog.md`
@@ -214,7 +280,7 @@ but may recur.
 
 ### Promotion condition
 
-When a Proto-Skill appears in **2 or more separate sessions**, propose skillification:
+When a Proto-Skill appears in **{{SKDD_PROMOTE_SESSIONS}} or more separate sessions**, propose skillification:
 "The knowledge about <topic> that I noted earlier came up again in this session.
 It might be time to turn it into a proper skill. Shall I?"
 
