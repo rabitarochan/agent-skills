@@ -184,8 +184,6 @@ Claude Code が進化しても、プラグインを更新することなく、�
   backlog シード、hook スクリプト、AGENTS.md セクション)
 - `plugins/skdd/SkDD-plugin-handoff.md` — 設計資料。§2 が設計の憲法(Why を伴った
   How が資産、SKILL.md/harvest.md ペア、原子的更新)
-- `plugins/skdd/work/` — プラグイン化以前のレガシー資産(参照用。プラグイン
-  ローダーはスキャンしません)
 
 ## design-docs
 

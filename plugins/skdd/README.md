@@ -170,5 +170,3 @@ comment, and the `skdd-stop.sh` header comment.
   hook script, AGENTS.md section)
 - `SkDD-plugin-handoff.md` — design document (in Japanese); §2 is the design
   constitution (Why-bearing How, SKILL.md/harvest.md pair, atomic updates)
-- `work/` — legacy pre-plugin assets kept for reference (not scanned by the
-  plugin loader)
