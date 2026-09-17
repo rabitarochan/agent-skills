@@ -27,11 +27,6 @@ For local development:
 claude plugin marketplace add /path/to/agent-skills
 ```
 
-> The repository is being renamed from `agent-skdd` to `agent-skills`. Until the
-> rename lands, `claude plugin marketplace add rabitarochan/agent-skdd` still
-> resolves; the marketplace it registers is already named `agent-skills`, so the
-> `<plugin>@agent-skills` install commands above are correct either way.
-
 ## Repository layout
 
 - `.claude-plugin/marketplace.json` — the marketplace manifest

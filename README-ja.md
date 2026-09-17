@@ -24,11 +24,6 @@ claude plugin install design-docs@agent-skills
 claude plugin marketplace add /path/to/agent-skills
 ```
 
-> リポジトリは `agent-skdd` から `agent-skills` へ改名予定です。改名までは
-> `claude plugin marketplace add rabitarochan/agent-skdd` で解決できます。
-> 登録される marketplace 名は既に `agent-skills` なので、上記の
-> `<plugin>@agent-skills` というインストール指定はどちらの場合も正しく動作します。
-
 ## skdd
 
 **SkDD (Skill Driven Development)** — 再利用可能な作業パターンを Skill として
