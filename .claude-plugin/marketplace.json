@@ -1,12 +1,17 @@
 {
-  "name": "agent-skdd",
-  "description": "SkDD (Skill Driven Development) — grow project-specific judgment and knowledge as Skills",
+  "name": "agent-skills",
+  "description": "Agent skills and plugins for Claude Code",
   "owner": { "name": "rabitarochan" },
   "plugins": [
     {
       "name": "skdd",
-      "source": "./",
+      "source": "./plugins/skdd",
       "description": "SkDD plugin — provides /skdd:setup, /skdd:config and /skdd:update, and deploys the skdd-harvest engine into projects"
+    },
+    {
+      "name": "design-docs",
+      "source": "./plugins/design-docs",
+      "description": "Design document skills — work through a new project, a feature, or a single architectural decision in dialogue, then write it up"
     }
   ]
 }

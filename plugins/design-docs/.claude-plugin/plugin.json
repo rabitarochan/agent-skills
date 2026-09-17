@@ -1,0 +1,8 @@
+{
+  "name": "design-docs",
+  "version": "0.1.0",
+  "description": "Design document skills: work through a new project, a feature, or a single architectural decision in dialogue, then write it up.",
+  "author": { "name": "rabitarochan" },
+  "license": "MIT",
+  "keywords": ["design", "design-doc", "adr", "architecture"]
+}

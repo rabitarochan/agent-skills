@@ -1,13 +1,40 @@
-# agent-skdd (日本語ドキュメント)
+# agent-skills (日本語ドキュメント)
+
+Claude Code のプラグイン marketplace です。プラグインの中身(スキル・
+テンプレート・コマンド)は英語で記述されています。本ファイルはその日本語解説です。
+
+| プラグイン | 概要 | 詳細 |
+|---|---|---|
+| `skdd` | **SkDD (Skill Driven Development)** — 再利用可能な作業パターンを Skill として結晶化し、**Why(判断理由)** を伴って育てる。収穫エンジンを各プロジェクトへ配置する。 | [plugins/skdd](plugins/skdd/README.md) |
+| `design-docs` | 新規プロジェクト・機能追加・単一の技術的決定の設計を対話で詰め、設計ドキュメント / ADR として書き出す。 | [plugins/design-docs](plugins/design-docs/README.md) |
+
+## インストール
+
+```
+claude plugin marketplace add rabitarochan/agent-skills
+claude plugin install skdd@agent-skills
+claude plugin install design-docs@agent-skills
+```
+
+2 つのプラグインは独立しているので、必要なものだけ入れてください。
+
+ローカル開発時:
+
+```
+claude plugin marketplace add /path/to/agent-skills
+```
+
+> リポジトリは `agent-skdd` から `agent-skills` へ改名予定です。改名までは
+> `claude plugin marketplace add rabitarochan/agent-skdd` で解決できます。
+> 登録される marketplace 名は既に `agent-skills` なので、上記の
+> `<plugin>@agent-skills` というインストール指定はどちらの場合も正しく動作します。
+
+## skdd
 
 **SkDD (Skill Driven Development)** — 再利用可能な作業パターンを Skill として
 結晶化し、**Why(判断理由)** を伴って育てる開発手法です。
 
-このリポジトリは Claude Code プラグイン **`skdd`** を配布する、単一リポジトリ
-完結の marketplace です。プラグインの中身(スキル・テンプレート)は英語で
-記述されています。本ファイルはその日本語解説です。
-
-## アーキテクチャ
+### アーキテクチャ
 
 **プラグイン = エンジン + インストーラー / プロジェクト = 実体(マテリアライズされた資産)**
 
@@ -20,7 +47,7 @@
 
 プロジェクトごとの skdd-harvest が、プロジェクト固有の判断と知識(Why + How)を
 `<接頭辞><domain>-<action>` という名前のスキル(デフォルト接頭辞 `pj-`)に
-結晶化していきます。これが agent-skdd の本質です。
+結晶化していきます。これが SkDD の本質です。
 
 収穫されたスキルは必ずペアで管理します:
 
@@ -29,9 +56,9 @@
 
 decision-level の変更で SKILL.md を編集する場合、同一トランザクションで
 harvest.md にエントリを追記します(**原子的更新**プロトコル)。詳細は
-`templates/skdd-harvest/references/harvest-protocol.md` を参照してください。
+`plugins/skdd/templates/skdd-harvest/references/harvest-protocol.md` を参照してください。
 
-### 2 層の執筆規約: SkDD 不変条件とプラットフォーム作法
+#### 2 層の執筆規約: SkDD 不変条件とプラットフォーム作法
 
 収穫のドクトリンは「SkDD が所有するもの」と「プラットフォームが所有するもの」を
 分離しています。**SkDD 不変条件** — 5 基準、収穫閾値とレベルごとのバー・行数上限、
@@ -48,23 +75,9 @@ progressive disclosure の流儀 — はプラグインに焼き込まず、収�
 Claude Code が進化しても、プラグインを更新することなく、収穫されるスキルが
 その時々のベストプラクティスに追従することです。
 
-## インストール
+### 使い方
 
-```
-claude plugin marketplace add rabitarochan/agent-skdd
-claude plugin install skdd@agent-skdd
-```
-
-ローカル開発時:
-
-```
-claude plugin marketplace add /path/to/agent-skdd
-claude plugin install skdd@agent-skdd
-```
-
-## 使い方
-
-### `/skdd:setup` — プロジェクトへの導入
+#### `/skdd:setup` — プロジェクトへの導入
 
 対象プロジェクト内で実行します。次の 3 点を質問されます:
 
@@ -87,7 +100,7 @@ claude plugin install skdd@agent-skdd
 
 `backlog.md` 以外はコミットしてください(backlog.md は gitignore 済み)。
 
-### `/skdd:config` — プロジェクト設定の変更
+#### `/skdd:config` — プロジェクト設定の変更
 
 **収穫閾値**・**スキル接頭辞**・**Stop hook の有無**を変更し、管理対象の資産を
 再レンダリングして全コピーの記述を揃えます。デプロイ済みバージョンは変更しません
@@ -98,7 +111,7 @@ claude plugin install skdd@agent-skdd
 /skdd:config threshold=high  # ワンショット
 ```
 
-### `/skdd:update` — 配置済み資産の更新
+#### `/skdd:update` — 配置済み資産の更新
 
 プラグイン本体を更新(`claude plugin update skdd`)した後、各プロジェクトで
 `/skdd:update` を実行します。管理対象の資産を新バージョンで再レンダリングし、
@@ -114,7 +127,7 @@ claude plugin install skdd@agent-skdd
 `threshold` 導入前に setup したプロジェクトにはこのキーがありません。
 `/skdd:update` が `medium`(= 従来の挙動と等価)で補完します。
 
-### 収穫(harvest)の流れ
+#### 収穫(harvest)の流れ
 
 配置されたエンジン(および非 Claude エージェント向けの AGENTS.md セクション)が
 次のループを駆動します。タスク完了時にセッションを 5 基準で評価します:
@@ -139,20 +152,20 @@ claude plugin install skdd@agent-skdd
 `.claude/skills/skdd-harvest/SKILL.md` の「Harvest Threshold」セクションにあり、
 そこがこれらの数値の唯一の真実源です。
 
-## バージョニング
+### バージョニング
 
 `plugin.json` の `version`(semver)が唯一の真実源で、update のキャッシュキー
-です。**`templates/` または `skills/` に変更を加えたら必ず bump してください**
+です。**`plugins/skdd/templates/` または `plugins/skdd/skills/` に変更を加えたら必ず bump してください**
 (patch = 文言・修正、minor = プロトコル・挙動の変更)。バージョンは 3 箇所に
 スタンプされます: AGENTS.md の config 行、配置された SKILL.md のコメント、
 `skdd-stop.sh` のヘッダーコメント。
 
-## 依存関係
+### 依存関係
 
 - Stop hook は hook 実行環境の PATH に `bash` が必要です(Windows は Git Bash)。
   それ以外の依存はありません(`jq` は意図的に使っていません)。
 
-## v1 の既知の制約
+### v1 の既知の制約
 
 - 配置済み skdd-harvest への手元編集は `/skdd:update` と `/skdd:config` で
   上書きされます — エンジンの改善はこのリポジトリ側で行ってください。
@@ -163,13 +176,57 @@ claude plugin install skdd@agent-skdd
   編集した箇所だけが対象で、既存スキルが全面的にリスタイルされることは
   ありません。
 
+### プラグイン構成
+
+- `plugins/skdd/.claude-plugin/plugin.json` — プラグインマニフェスト(version が真実源)
+- `plugins/skdd/skills/` — インストーラースキル(`setup`、`config`、`update`)
+- `plugins/skdd/templates/` — プロジェクトへ配置されるペイロード(エンジンスキル、
+  backlog シード、hook スクリプト、AGENTS.md セクション)
+- `plugins/skdd/SkDD-plugin-handoff.md` — 設計資料。§2 が設計の憲法(Why を伴った
+  How が資産、SKILL.md/harvest.md ペア、原子的更新)
+- `plugins/skdd/work/` — プラグイン化以前のレガシー資産(参照用。プラグイン
+  ローダーはスキャンしません)
+
+## design-docs
+
+設計ドキュメントを「対話で詰めてから書き出す」ためのスキル群です。
+
+| スキル | 用途 | 出力先 |
+|---|---|---|
+| `design-new-project` | 新規プロジェクト全体の設計 | `docs/design/README.md` |
+| `design-feature` | 既存システムへの機能追加の設計 | `docs/design/features/<slug>/README.md` |
+| `design-adr` | 単一の技術的決定の記録 | `docs/adr/NNNN-<slug>.md` |
+
+`/design-docs:design-new-project` などのコマンドからも、スキルの自動発火からも
+起動します。スキルの `description` には日本語のトリガーフレーズ(「技術選定」
+「設計ドキュメント」など)を含めてあるので、日本語のプロンプトからも発火します。
+
+### 設計方針
+
+- **可搬性**: `SKILL.md` は素の Markdown で書かれ、Claude Code 固有機能
+  (サブエージェント、hooks、Plan Mode)に依存しません。サブエージェントによる
+  並列調査のみ「利用可能なら使う」という条件付き記述です。`skills/`
+  ディレクトリごとコピーすれば他のエージェントでも動作します。
+- **依存ゼロ**: 他のスキル・プラグインに依存しません。共通リファレンスの参照は
+  同梱ディレクトリ内で完結します。
+- **スキル本文は英語、成果物はユーザーの利用言語**。
+- **設計のプロとして章を選ぶ**。固定テンプレートを埋めさせず、必要な章とその
+  理由・除外した章とその理由を冒頭で 1 回だけ提示して合意を取ります。
+- **実装計画は書かない**。設計ドキュメントは Plan Mode の入力であり、タスク
+  分割は別セッションの仕事です。
+
+章立ての原則は Michael Lynch, "How to Write an Effective Software Design
+Document"
+(<https://refactoringenglish.com/excerpts/write-an-effective-design-doc/>)
+を参考に、独自の言葉で再構成しています。
+
 ## リポジトリ構成
 
-- `.claude-plugin/` — プラグイン + marketplace マニフェスト
-- `skills/` — インストーラースキル(`setup`、`config`、`update`)
-- `templates/` — プロジェクトへ配置されるペイロード(エンジンスキル、backlog
-  シード、hook スクリプト、AGENTS.md セクション)
-- `SkDD-plugin-handoff.md` — 設計資料。§2 が設計の憲法(Why を伴った How が資産、
-  SKILL.md/harvest.md ペア、原子的更新)
-- `work/` — プラグイン化以前のレガシー資産(参照用。プラグインローダーは
-  スキャンしません)
+- `.claude-plugin/marketplace.json` — marketplace マニフェスト
+- `plugins/<name>/` — プラグイン 1 つにつき 1 ディレクトリ。それぞれが
+  `.claude-plugin/plugin.json` と README を持つ
+- 各プラグインのバージョンはそれぞれの `plugin.json` で独立して管理されます
+
+## ライセンス
+
+MIT
