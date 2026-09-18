@@ -1,5 +1,5 @@
 {
-  "name": "agent-skills",
+  "name": "rabitarochan-skills",
   "description": "Agent skills and plugins for Claude Code",
   "owner": { "name": "rabitarochan" },
   "plugins": [

@@ -3,7 +3,7 @@
 **SkDD (Skill Driven Development)** — crystallize reusable work patterns into
 Skills and grow them with their **Why** (rationale) attached.
 
-Part of the [agent-skills](../../README.md) marketplace. 日本語の解説は
+Part of the [rabitarochan-skills](../../README.md) marketplace. 日本語の解説は
 [README-ja.md](../../README-ja.md) を参照してください。
 
 ## Architecture
@@ -50,14 +50,14 @@ plugin upgrade.
 
 ```
 claude plugin marketplace add rabitarochan/agent-skills
-claude plugin install skdd@agent-skills
+claude plugin install skdd@rabitarochan-skills
 ```
 
 For local development:
 
 ```
 claude plugin marketplace add /path/to/agent-skills
-claude plugin install skdd@agent-skills
+claude plugin install skdd@rabitarochan-skills
 ```
 
 ## Usage

@@ -10,7 +10,7 @@ Skills for working a design out in dialogue **before** writing it down.
 
 ## Install
 
-This plugin ships from the `agent-skills` marketplace in this repository — see
+This plugin ships from the `rabitarochan-skills` marketplace in this repository — see
 the [root README](../../README.md) for the install commands.
 
 To use the skills without the plugin system, copy the three skill directories

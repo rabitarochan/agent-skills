@@ -15,8 +15,8 @@ A self-contained Claude Code plugin marketplace.
 
 ```
 claude plugin marketplace add rabitarochan/agent-skills
-claude plugin install skdd@agent-skills
-claude plugin install design-docs@agent-skills
+claude plugin install skdd@rabitarochan-skills
+claude plugin install design-docs@rabitarochan-skills
 ```
 
 Install only the plugins you want — the two are independent.

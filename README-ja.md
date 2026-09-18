@@ -12,8 +12,8 @@ Claude Code のプラグイン marketplace です。プラグインの中身(ス
 
 ```
 claude plugin marketplace add rabitarochan/agent-skills
-claude plugin install skdd@agent-skills
-claude plugin install design-docs@agent-skills
+claude plugin install skdd@rabitarochan-skills
+claude plugin install design-docs@rabitarochan-skills
 ```
 
 2 つのプラグインは独立しているので、必要なものだけ入れてください。
